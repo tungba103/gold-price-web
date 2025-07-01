@@ -1,0 +1,151 @@
+'use client';
+import { CartesianGrid, Line, LineChart, Tooltip, XAxis, YAxis } from 'recharts';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
+import { PeriodOptions, PeriodSelector } from './period-selector';
+import { useState, useEffect, useCallback } from 'react';
+
+export const description = 'A linear line chart';
+
+const chartConfig = {
+  desktop: {
+    label: 'Desktop',
+    color: 'var(--chart-1)',
+  },
+} satisfies ChartConfig;
+
+interface IProps {
+  name: string;
+  company: string;
+}
+
+interface GoldPriceData {
+  id: number;
+  company: string;
+  date: string;
+  buyPrice: number;
+  sellPrice: number;
+}
+
+export function GoldPriceChart({ name, company }: IProps) {
+  const today = new Date(new Date().toISOString().split('T')[0]);
+  const sevenDaysAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+  const [fromDate, setFromDate] = useState<Date | null>(sevenDaysAgo);
+  const [toDate, setToDate] = useState<Date | null>(today);
+
+  const [selectedPeriod, setSelectedPeriod] = useState<PeriodOptions>("1month");
+  
+  const [goldPrices, setGoldPrices] = useState<GoldPriceData[]>([]);
+
+  // Function to fetch gold prices
+  const fetchGoldPrices = useCallback(async () => {
+    try {
+      const params = new URLSearchParams({
+        company: company,
+        ...(fromDate && { fromDate: fromDate.toISOString() }),
+        ...(toDate && { toDate: toDate.toISOString() }),
+      });
+
+      const response = await fetch(`/api/gold-prices?${params}`);
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch gold prices');
+      }
+
+      const data = await response.json();
+      setGoldPrices(data);
+    } catch (err) {
+      console.error('Error fetching gold prices:', err);
+    }
+  }, [company, fromDate, toDate]);
+
+  useEffect(() => {
+    fetchGoldPrices();
+    console.log('useEffect fetchGoldPrices');
+  }, [company, fromDate, toDate, fetchGoldPrices]);
+
+  const handlePeriodChange = (period: PeriodOptions, fromDate: Date | null, toDate: Date | null) => {
+    setSelectedPeriod(period);
+    setFromDate(fromDate);
+    setToDate(toDate);
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex justify-between items-center">
+          <div className="flex flex-col gap-1">
+            <CardTitle>{name}</CardTitle>
+            <CardDescription>
+              {fromDate?.toLocaleDateString() || ''} - {toDate?.toLocaleDateString() || ''}
+            </CardDescription>
+          </div>
+          <PeriodSelector selectedPeriod={selectedPeriod} onPeriodChange={handlePeriodChange} />
+        </div>
+      </CardHeader>
+      <CardContent>
+        <ChartContainer config={chartConfig}>
+          <LineChart
+            accessibilityLayer
+            data={goldPrices}
+            margin={{
+              left: 12,
+              right: 12,
+            }}
+            width={1000}
+            height={600}
+          >
+            <CartesianGrid vertical={false} />
+            <YAxis
+              domain={['auto', 'auto']}
+              tickFormatter={(value) => value.toLocaleString('vi-VN')}
+            />
+            <XAxis
+              dataKey="date"
+              tickLine={true}
+              axisLine={true}
+              tickMargin={8}
+              tickFormatter={(value) => value.slice(0, 10)}
+            />
+            <ChartTooltip
+              cursor={false}
+              content={<ChartTooltipContent hideLabel />}
+            />
+            <Line
+              dataKey="buyPrice"
+              type="linear"
+              stroke="#000"
+              strokeWidth={2}
+              dot={false}
+            />
+            <Line
+              dataKey="sellPrice"
+              type="linear"
+              stroke="var(--color-desktop)"
+              strokeWidth={2}
+              dot={false}
+            />
+            <Tooltip
+              formatter={(value) =>
+                (value as number).toLocaleString('vi-VN', {
+                  style: 'currency',
+                  currency: 'VND',
+                })
+              }
+              labelFormatter={(value) =>
+                new Date(value).toLocaleDateString('vi-VN')
+              }
+            />
+          </LineChart>
+        </ChartContainer>
+      </CardContent>
+       {/* <CardFooter className='flex-col items-start gap-2 text-sm'>
+        <div className='flex gap-2 leading-none font-medium'>
+          Trending up by 5.2% this month <TrendingUp className='h-4 w-4' />
+        </div>
+        <div className='text-muted-foreground leading-none'>Showing total visitors for the last 6 months</div>
+      </CardFooter> */}
+    </Card>
+  );
+}
