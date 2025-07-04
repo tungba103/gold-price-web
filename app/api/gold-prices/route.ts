@@ -40,13 +40,7 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    // Format dates for the chart
-    const formattedData = goldPrices.map(price => ({
-      ...price,
-      date: price.date.toISOString().split('T')[0], // Format as YYYY-MM-DD
-    }));
-
-    return NextResponse.json(formattedData);
+    return NextResponse.json(goldPrices);
   } catch (error) {
     console.error('Error fetching gold prices:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

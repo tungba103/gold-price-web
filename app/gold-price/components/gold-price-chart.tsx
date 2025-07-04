@@ -1,9 +1,10 @@
 'use client';
 import { CartesianGrid, Line, LineChart, Tooltip, XAxis, YAxis } from 'recharts';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { ChartConfig, ChartContainer } from '@/components/ui/chart';
 import { PeriodOptions, PeriodSelector } from './period-selector';
 import { useState, useEffect, useCallback } from 'react';
+import { TrendingUp } from 'lucide-react';
 
 export const description = 'A linear line chart';
 
@@ -22,7 +23,7 @@ interface IProps {
 interface GoldPriceData {
   id: number;
   company: string;
-  date: string;
+  date: Date;
   buyPrice: number;
   sellPrice: number;
 }
@@ -34,9 +35,10 @@ export function GoldPriceChart({ name, company }: IProps) {
   const [fromDate, setFromDate] = useState<Date | null>(sevenDaysAgo);
   const [toDate, setToDate] = useState<Date | null>(today);
 
-  const [selectedPeriod, setSelectedPeriod] = useState<PeriodOptions>("1month");
-  
+  const [selectedPeriod, setSelectedPeriod] = useState<PeriodOptions>('1month');
+
   const [goldPrices, setGoldPrices] = useState<GoldPriceData[]>([]);
+  const [trendUpPercent, setTrendUpPercent] = useState<number>();
 
   // Function to fetch gold prices
   const fetchGoldPrices = useCallback(async () => {
@@ -48,13 +50,21 @@ export function GoldPriceChart({ name, company }: IProps) {
       });
 
       const response = await fetch(`/api/gold-prices?${params}`);
-      
+
       if (!response.ok) {
         throw new Error('Failed to fetch gold prices');
       }
 
       const data = await response.json();
-      setGoldPrices(data);
+      const formattedData = data.map((price: GoldPriceData) => ({
+        date: new Date(price.date).toISOString().split('T')[0],
+        'Buy Price': price.buyPrice,
+        'Sell Price': price.sellPrice,
+      }));
+
+      setGoldPrices(formattedData);
+      const delta = (data[data.length - 1].sellPrice * 100) / data[0].sellPrice - 100;
+      setTrendUpPercent(Number(delta.toFixed(2)));
     } catch (err) {
       console.error('Error fetching gold prices:', err);
     }
@@ -74,14 +84,17 @@ export function GoldPriceChart({ name, company }: IProps) {
   return (
     <Card>
       <CardHeader>
-        <div className="flex justify-between items-center">
-          <div className="flex flex-col gap-1">
+        <div className='flex justify-between items-center'>
+          <div className='flex flex-col gap-1'>
             <CardTitle>{name}</CardTitle>
             <CardDescription>
               {fromDate?.toLocaleDateString() || ''} - {toDate?.toLocaleDateString() || ''}
             </CardDescription>
           </div>
-          <PeriodSelector selectedPeriod={selectedPeriod} onPeriodChange={handlePeriodChange} />
+          <PeriodSelector
+            selectedPeriod={selectedPeriod}
+            onPeriodChange={handlePeriodChange}
+          />
         </div>
       </CardHeader>
       <CardContent className='px-0'>
@@ -111,27 +124,23 @@ export function GoldPriceChart({ name, company }: IProps) {
               }}
             />
             <XAxis
-              dataKey="date"
+              dataKey='date'
               tickLine={true}
               axisLine={true}
               tickMargin={8}
               tickFormatter={(value) => value.slice(0, 10)}
             />
-            <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent hideLabel />}
-            />
             <Line
-              dataKey="buyPrice"
-              type="linear"
-              stroke="#000"
+              dataKey='Buy Price'
+              type='linear'
+              stroke='#000'
               strokeWidth={2}
               dot={false}
             />
             <Line
-              dataKey="sellPrice"
-              type="linear"
-              stroke="var(--color-desktop)"
+              dataKey='Sell Price'
+              type='linear'
+              stroke='var(--color-desktop)'
               strokeWidth={2}
               dot={false}
             />
@@ -142,19 +151,17 @@ export function GoldPriceChart({ name, company }: IProps) {
                   currency: 'VND',
                 })
               }
-              labelFormatter={(value) =>
-                new Date(value).toLocaleDateString('vi-VN')
-              }
+              labelFormatter={(value) => new Date(value).toLocaleDateString('vi-VN')}
             />
           </LineChart>
         </ChartContainer>
       </CardContent>
-       {/* <CardFooter className='flex-col items-start gap-2 text-sm'>
+      <CardFooter className='flex-col items-start gap-2 text-sm'>
         <div className='flex gap-2 leading-none font-medium'>
-          Trending up by 5.2% this month <TrendingUp className='h-4 w-4' />
+          Trending up by {trendUpPercent}% <TrendingUp className='h-4 w-4' />
         </div>
-        <div className='text-muted-foreground leading-none'>Showing total visitors for the last 6 months</div>
-      </CardFooter> */}
+        {/* <div className='text-muted-foreground leading-none'>Showing total visitors for the last 6 months</div> */}
+      </CardFooter>
     </Card>
   );
 }
