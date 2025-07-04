@@ -55,13 +55,13 @@ export default function RootLayout({
                     <Breadcrumb>
                     <BreadcrumbList>
                         <BreadcrumbItem className="hidden md:block">
-                        <BreadcrumbLink href="#">
+                        <BreadcrumbLink href="#" className="text-lg font-bold">
                             Utilities
                         </BreadcrumbLink>
                         </BreadcrumbItem>
                         <BreadcrumbSeparator className="hidden md:block" />
                         <BreadcrumbItem>
-                        <BreadcrumbPage>Gold Price</BreadcrumbPage>
+                        <BreadcrumbPage className="text-lg font-bold">Gold Price</BreadcrumbPage>
                         </BreadcrumbItem>
                     </BreadcrumbList>
                     </Breadcrumb>

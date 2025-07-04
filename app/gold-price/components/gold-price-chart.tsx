@@ -84,7 +84,7 @@ export function GoldPriceChart({ name, company }: IProps) {
           <PeriodSelector selectedPeriod={selectedPeriod} onPeriodChange={handlePeriodChange} />
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className='px-0'>
         <ChartContainer config={chartConfig}>
           <LineChart
             accessibilityLayer
@@ -99,7 +99,16 @@ export function GoldPriceChart({ name, company }: IProps) {
             <CartesianGrid vertical={false} />
             <YAxis
               domain={['auto', 'auto']}
-              tickFormatter={(value) => value.toLocaleString('vi-VN')}
+              tickFormatter={(value) => {
+                if (typeof value !== 'number') return value;
+                if (value >= 1_000_000) {
+                  return `${(value / 1_000_000).toFixed(2)}M`;
+                }
+                if (value >= 1_000) {
+                  return `${(value / 1_000).toFixed(2)}K`;
+                }
+                return value.toString();
+              }}
             />
             <XAxis
               dataKey="date"
