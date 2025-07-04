@@ -161,4 +161,37 @@ async function crawlGoldPricesDaily(): Promise<void> {
   }
 }
 
-export { crawlGoldPricesDaily };
+async function crawlAllGoldPrices(): Promise<void> {
+  try {
+    console.log('Gold Price Scraper for 24h.com.vn');
+    console.log('='.repeat(40));
+    
+    // Loop from 2025-01-01 to 2025-07-01 (inclusive)
+    const startDate = new Date('2025-01-24');
+    const endDate = new Date('2025-06-01');
+
+    for (
+      let currentDate = new Date(startDate);
+      currentDate <= endDate;
+      currentDate.setDate(currentDate.getDate() + 1)
+    ) {
+      const selectedDate = currentDate.toISOString().split('T')[0];
+      console.log('Date:', selectedDate);
+
+      // Get gold prices for the selected date
+      const goldData = await getGoldPrices(selectedDate);
+
+      if (goldData) {
+        // Save to database using Prisma
+        await saveToPrisma(goldData, selectedDate);
+      }
+    }
+  } catch (error) {
+    console.error('Error in main function:', error);
+  } finally {
+    // Always disconnect Prisma client
+    await disconnectPrisma();
+  }
+}
+
+export { crawlGoldPricesDaily, crawlAllGoldPrices };
