@@ -44,7 +44,8 @@ export async function SectionCards() {
   const monthlyLowDate = goldPricesThisMonth.find(price => price.sellPrice === monthlyLow)?.date;
 
   return (
-    <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
+    <>
+      <div className="hidden md:grid *:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
       <Card className="@container/card">
         <CardHeader>
           <CardDescription>Current Gold Price</CardDescription>
@@ -127,6 +128,13 @@ export async function SectionCards() {
           </div>
         </CardFooter>
       </Card>
-    </div>
+     </div>
+     <div className="md:hidden px-2 mb-3">
+        <CardDescription>Current Gold Price: <span className="font-semibold text-black">{currentPrice.toLocaleString('vi-VN')} VND</span></CardDescription>
+        <CardDescription>24h Change: <span className="font-semibold text-black">{twentyFourHourChange.toLocaleString('vi-VN')} VND</span></CardDescription>
+        <CardDescription>Monthly High: <span className="font-semibold text-black">{monthlyHigh.toLocaleString('vi-VN')} VND</span></CardDescription>
+        <CardDescription>Monthly Low: <span className="font-semibold text-black">{monthlyLow.toLocaleString('vi-VN')} VND</span></CardDescription>
+     </div>
+    </>
   )
 }
