@@ -1,7 +1,7 @@
 {
   "crons": [
     {
-      "path": "/api/scripts/crawl-gold-prices-daily/route.ts",
+      "path": "/api/scripts/crawl-gold-prices-daily",
       "schedule": "0 1 * * *"
     }
   ]
