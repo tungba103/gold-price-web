@@ -10,6 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { prisma } from "@/lib/prisma";
+import { COMPANIES } from "@/utils/utils";
 
 const VOLATILITY = {
   LOW: 'Low',
@@ -23,6 +24,7 @@ export async function SectionCards() {
       date: {
         gte: new Date(new Date().setDate(new Date().getDate() - 30)),
       },
+      company: COMPANIES.PNJ_HN
     },
     orderBy: {
       date: 'asc',
@@ -33,6 +35,7 @@ export async function SectionCards() {
 
   const yesterdayPrice = goldPricesThisMonth[goldPricesThisMonth.length - 2].sellPrice;
 
+  console.log(currentPrice, yesterdayPrice);
   const twentyFourHourChange = (currentPrice - yesterdayPrice);
   const twentyFourHourChangePercent = (twentyFourHourChange / yesterdayPrice) * 100;
   const volatility = twentyFourHourChangePercent > 0.1 ? VOLATILITY.HIGH : twentyFourHourChangePercent > 0.05 ? VOLATILITY.MODERATE : VOLATILITY.LOW;

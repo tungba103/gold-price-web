@@ -142,7 +142,9 @@ async function crawlGoldPricesDaily(): Promise<void> {
     console.log('Gold Price Scraper for 24h.com.vn');
     console.log('='.repeat(40));
     
-    const selectedDate = new Date().toISOString().split('T')[0];
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const selectedDate = yesterday.toISOString().split('T')[0];
     
     console.log('Date:',selectedDate);
     

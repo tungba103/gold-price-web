@@ -1,15 +1,6 @@
-import { SectionCards } from '@/components/section-cards';
+import { SectionCards } from '@/app/gold-price/components/section-cards';
 import { GoldPriceChart } from './gold-price/components/gold-price-chart';
-
-const Company = {
-  SJC: 'SJC',
-  BTMC_SJC: 'BTMC SJC',
-  PhuQuy_SJC: 'Phú Qúy SJC',
-  DOJI_HN: 'DOJI HN',
-  PNJ_HN: 'PNJ Hà Nội',
-  DOJI_SG: 'DOJI SG',
-  PNJ_TPHCM: 'PNJ TP.HCM',
-} as const;
+import { COMPANIES } from '../utils/utils';
 
 export default async function Page() {
   return (
@@ -20,16 +11,16 @@ export default async function Page() {
         </div>
         <div className='px-2 md:px-6 flex gap-4 mb-2 flex-col md:flex-row'>
           <div className='w-full md:w-1/4'>
-            <GoldPriceChart name='PNJ HN' company={Company.PNJ_HN} />
+            <GoldPriceChart name='PNJ HN' company={COMPANIES.PNJ_HN} />
           </div>
           <div className='w-full md:w-1/4'>
-            <GoldPriceChart name='DOJI HN' company={Company.DOJI_HN} />
+            <GoldPriceChart name='DOJI HN' company={COMPANIES.DOJI_HN} />
           </div>
           <div className='w-full md:w-1/4'>
-            <GoldPriceChart name='SJC' company={Company.SJC} />
+            <GoldPriceChart name='SJC' company={COMPANIES.SJC} />
           </div>
           <div className='w-full md:w-1/4'>
-            <GoldPriceChart name='BTMC SJC' company={Company.BTMC_SJC} />
+            <GoldPriceChart name='BTMC SJC' company={COMPANIES.BTMC_SJC} />
           </div>
         </div>
       </div>

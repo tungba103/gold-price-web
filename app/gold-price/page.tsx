@@ -1,4 +1,4 @@
-import { SectionCards } from '@/components/section-cards';
+import { SectionCards } from '@/app/gold-price/components/section-cards';
 import { GoldPriceChart } from './components/gold-price-chart';
 
 const Company = {
