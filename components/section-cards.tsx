@@ -9,22 +9,48 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { prisma } from "@/lib/prisma";
 
-export function SectionCards() {
+const VOLATILITY = {
+  LOW: 'Low',
+  MODERATE: 'Moderate',
+  HIGH: 'High',
+} as const;
+
+export async function SectionCards() {
+  const goldPricesThisMonth = await prisma.goldPrice.findMany({
+    where: {
+      date: {
+        gte: new Date(new Date().setDate(new Date().getDate() - 30)),
+      },
+    },
+    orderBy: {
+      date: 'asc',
+    },
+  });
+  
+  const currentPrice = goldPricesThisMonth[goldPricesThisMonth.length - 1].sellPrice;
+
+  const yesterdayPrice = goldPricesThisMonth[goldPricesThisMonth.length - 2].sellPrice;
+
+  const twentyFourHourChange = (currentPrice - yesterdayPrice);
+  const twentyFourHourChangePercent = (twentyFourHourChange / yesterdayPrice) * 100;
+  const volatility = twentyFourHourChangePercent > 0.1 ? VOLATILITY.HIGH : twentyFourHourChangePercent > 0.05 ? VOLATILITY.MODERATE : VOLATILITY.LOW;
+
+  const monthlyHigh = Math.max(...goldPricesThisMonth.map(price => price.sellPrice));
+  const monthlyLow = Math.min(...goldPricesThisMonth.map(price => price.sellPrice));
+  
+  const monthlyHighDate = goldPricesThisMonth.find(price => price.sellPrice === monthlyHigh)?.date;
+  const monthlyLowDate = goldPricesThisMonth.find(price => price.sellPrice === monthlyLow)?.date;
+
   return (
     <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
       <Card className="@container/card">
         <CardHeader>
           <CardDescription>Current Gold Price</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            122.2M
+            {currentPrice.toLocaleString('vi-VN')} VND
           </CardTitle>
-          <CardAction>
-            <Badge variant="outline">
-              <IconTrendingUp />
-              +1.2%
-            </Badge>
-          </CardAction>
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
           <div className="line-clamp-1 flex gap-2 font-medium">
@@ -39,21 +65,21 @@ export function SectionCards() {
         <CardHeader>
           <CardDescription>24h Change</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            +520.000
+            {twentyFourHourChange.toLocaleString('vi-VN')} VND
           </CardTitle>
-          <CardAction>
+          {<CardAction>
             <Badge variant="outline">
-              <IconTrendingUp />
-              +1.2%
+              {twentyFourHourChangePercent > 0 ? <IconTrendingUp /> : <IconTrendingDown />}
+              {twentyFourHourChangePercent.toFixed(2)}%
             </Badge>
-          </CardAction>
+          </CardAction>}
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
           <div className="line-clamp-1 flex gap-2 font-medium">
             Compared to previous day <IconTrendingUp className="size-4" />
           </div>
           <div className="text-muted-foreground">
-            Volatility: Moderate
+            Volatility: {volatility}
           </div>
         </CardFooter>
       </Card>
@@ -61,7 +87,7 @@ export function SectionCards() {
         <CardHeader>
           <CardDescription>Monthly High</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            117.2M
+            {monthlyHigh.toLocaleString('vi-VN')} VND
           </CardTitle>
           <CardAction>
             <Badge variant="outline">
@@ -74,27 +100,31 @@ export function SectionCards() {
           <div className="line-clamp-1 flex gap-2 font-medium">
             Highest in 30 days <IconTrendingUp className="size-4" />
           </div>
-          <div className="text-muted-foreground">Set on June 10</div>
+          <div className="text-muted-foreground">Set on {monthlyHighDate?.toLocaleDateString('vi-VN', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+          })}
+          </div>
         </CardFooter>
       </Card>
       <Card className="@container/card">
         <CardHeader>
           <CardDescription>Monthly Low</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            112.2M
+            {monthlyLow.toLocaleString('vi-VN')} VND
           </CardTitle>
-          <CardAction>
-            <Badge variant="outline">
-              <IconTrendingDown />
-              -2.1%
-            </Badge>
-          </CardAction>
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
           <div className="line-clamp-1 flex gap-2 font-medium">
             Lowest in 30 days <IconTrendingDown className="size-4" />
           </div>
-          <div className="text-muted-foreground">Set on June 2</div>
+          <div className="text-muted-foreground">Set on {monthlyLowDate?.toLocaleDateString('vi-VN', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+          })}
+          </div>
         </CardFooter>
       </Card>
     </div>
