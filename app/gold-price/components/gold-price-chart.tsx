@@ -35,7 +35,7 @@ export function GoldPriceChart({ name, company }: IProps) {
   const [fromDate, setFromDate] = useState<Date | null>(sevenDaysAgo);
   const [toDate, setToDate] = useState<Date | null>(today);
 
-  const [selectedPeriod, setSelectedPeriod] = useState<PeriodOptions>('1month');
+  const [selectedPeriod, setSelectedPeriod] = useState<PeriodOptions>('1year');
 
   const [goldPrices, setGoldPrices] = useState<GoldPriceData[]>([]);
   const [trendUpPercent, setTrendUpPercent] = useState<number>();
@@ -88,15 +88,19 @@ export function GoldPriceChart({ name, company }: IProps) {
           <div className='flex flex-col gap-1'>
             <CardTitle>{name}</CardTitle>
             <CardDescription>
-              {fromDate?.toLocaleDateString() ?? new Date(goldPrices[0]?.date).toLocaleDateString('vi-VN', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-              })} - {toDate?.toLocaleDateString() ?? goldPrices[goldPrices.length - 1].date.toLocaleDateString('vi-VN', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-              })}
+              {fromDate?.toLocaleDateString() ??
+                new Date(goldPrices[0]?.date).toLocaleDateString('vi-VN', {
+                  day: '2-digit',
+                  month: '2-digit',
+                  year: 'numeric',
+                })}{' '}
+              -{' '}
+              {toDate?.toLocaleDateString() ??
+                goldPrices[goldPrices.length - 1].date.toLocaleDateString('vi-VN', {
+                  day: '2-digit',
+                  month: '2-digit',
+                  year: 'numeric',
+                })}
             </CardDescription>
           </div>
           <PeriodSelector
