@@ -20,24 +20,22 @@ export default async function Page() {
         </div>
         <div className='px-6 flex gap-4 mb-2'>
           <div className='w-1/3'>
-            <GoldPriceChart name='SJC' company={Company.SJC} />
+            <GoldPriceChart
+              name='SJC'
+              company={Company.SJC}
+            />
           </div>
           <div className='w-1/3'>
-            <GoldPriceChart name='BTMC SJC' company={Company.BTMC_SJC} />
+            <GoldPriceChart
+              name='BTMC SJC'
+              company={Company.BTMC_SJC}
+            />
           </div>
           <div className='w-1/3'>
-            <GoldPriceChart name='Phú Qúy SJC' company={Company.PhuQuy_SJC} />
-          </div>
-        </div>
-        <div className='px-6 flex gap-4 mb-12'>
-          <div className='w-1/3'>
-            <GoldPriceChart name='PNJ HN' company={Company.PNJ_HN} />
-          </div>
-          <div className='w-1/3'>
-            <GoldPriceChart name='DOJI HN' company={Company.DOJI_HN} />
-          </div>
-          <div className='w-1/3'>
-            <GoldPriceChart name='DOJI SG' company={Company.DOJI_SG} />
+            <GoldPriceChart
+              name='Phú Qúy SJC'
+              company={Company.PhuQuy_SJC}
+            />
           </div>
         </div>
       </div>
